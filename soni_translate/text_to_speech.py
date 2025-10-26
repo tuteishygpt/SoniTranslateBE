@@ -391,6 +391,55 @@ def segments_vits_tts(filtered_vits_segments, TRANSLATE_AUDIO_TO):
 # =====================================
 
 
+CUSTOM_COQUI_MODELS = {
+    "be": {
+        "repo": "archivartaunik/BE_XTTS_V2_10ep250k",
+        "files": {
+            "model_path": "model.pth",
+            "config_path": "config.json",
+            "vocab_path": "vocab.json",
+        },
+    }
+}
+
+
+def download_custom_coqui_model(language_code):
+    model_meta = CUSTOM_COQUI_MODELS.get(language_code)
+    if not model_meta:
+        return {}
+
+    repo = model_meta["repo"]
+    sanitized_repo = repo.replace("/", "_")
+    model_dir = os.path.join("COQUI_MODELS", sanitized_repo)
+    create_directories(model_dir)
+
+    downloaded_paths = {}
+    for key, filename in model_meta["files"].items():
+        url = f"https://huggingface.co/{repo}/resolve/main/{filename}"
+        try:
+            downloaded_file = download_manager(
+                url=url, path=model_dir, progress=False
+            )
+        except Exception as error:
+            logger.error(
+                "Unable to download '%s' for custom Coqui model '%s': %s",
+                filename,
+                repo,
+                error,
+            )
+            return {}
+
+        if not downloaded_file or not Path(downloaded_file).is_file():
+            logger.error(
+                "Custom Coqui model file missing after download: %s", filename
+            )
+            return {}
+
+        downloaded_paths[key] = downloaded_file
+
+    return downloaded_paths
+
+
 def coqui_xtts_voices_list():
     main_folder = "_XTTS_"
     pattern_coqui = re.compile(r".+\.(wav|mp3|ogg|m4a)$")
@@ -580,6 +629,236 @@ def create_new_files_for_vc(
                     )
 
 
+# ---------- helpers for fine-tuned XTTS ----------
+
+
+def _load_state_dict_flex(model_local, ckpt, strict=False):
+    """Падтрымлівае агульныя схемы ключоў у чекпойнтах XTTS."""
+    import torch
+
+    loaded = False
+    if isinstance(ckpt, dict):
+        for key in [
+            "model",
+            "state_dict",
+            "state_dict_model",
+            "model_state_dict",
+            "module",
+        ]:
+            if key in ckpt and isinstance(ckpt[key], dict):
+                model_local.load_state_dict(ckpt[key], strict=strict)
+                loaded = True
+                break
+
+        if not loaded and all(isinstance(v, torch.Tensor) for v in ckpt.values()):
+            model_local.load_state_dict(ckpt, strict=strict)
+            loaded = True
+
+    if not loaded:
+        raise RuntimeError("Unsupported checkpoint format for XTTS fine-tune.")
+
+    return model_local
+
+
+def _is_simple_obj(x):
+    import torch
+    import numpy as np
+
+    return (
+        x is None
+        or isinstance(x, (str, bytes, int, float, bool))
+        or isinstance(x, np.ndarray)
+        or isinstance(x, torch.Tensor)
+    )
+
+
+def _extract_xtts_tokenizer(container, _depth=0, _visited=None):
+    if _visited is None:
+        _visited = set()
+
+    if _depth > 6:
+        return None
+
+    obj_id = id(container)
+    if obj_id in _visited:
+        return None
+    _visited.add(obj_id)
+
+    if hasattr(container, "tokenizer"):
+        tok = getattr(container, "tokenizer")
+        if tok is not None:
+            return tok
+
+    for attr in ["tts_model", "model", "_model", "models", "_models"]:
+        if hasattr(container, attr):
+            sub = getattr(container, attr)
+            if _is_simple_obj(sub):
+                continue
+
+            if isinstance(sub, (list, tuple)):
+                for item in sub:
+                    if _is_simple_obj(item):
+                        continue
+                    found = _extract_xtts_tokenizer(item, _depth + 1, _visited)
+                    if found is not None:
+                        return found
+            elif isinstance(sub, dict):
+                for item in sub.values():
+                    if _is_simple_obj(item):
+                        continue
+                    found = _extract_xtts_tokenizer(item, _depth + 1, _visited)
+                    if found is not None:
+                        return found
+            else:
+                found = _extract_xtts_tokenizer(sub, _depth + 1, _visited)
+                if found is not None:
+                    return found
+
+    try:
+        for attr_name in dir(container):
+            if attr_name.startswith("__") and attr_name.endswith("__"):
+                continue
+            try:
+                sub = getattr(container, attr_name)
+            except Exception:
+                continue
+
+            if _is_simple_obj(sub):
+                continue
+
+            if hasattr(sub, "tokenizer") and getattr(sub, "tokenizer"):
+                return getattr(sub, "tokenizer")
+
+            found = _extract_xtts_tokenizer(sub, _depth + 1, _visited)
+            if found is not None:
+                return found
+    except Exception as error:
+        logger.debug(f"_extract_xtts_tokenizer scan error: {error}")
+
+    return None
+
+
+def _init_xtts_finetune_model(custom_model_paths, device_str, tokenizer_source):
+    import torch
+    from TTS.tts.configs.xtts_config import XttsConfig
+    from TTS.tts.models.xtts import Xtts
+
+    if device_str is None:
+        device_str = "cpu"
+
+    torch_device = torch.device(
+        "cuda" if device_str == "cuda" and torch.cuda.is_available() else "cpu"
+    )
+
+    config = XttsConfig()
+    config.load_json(custom_model_paths["config_path"])
+    model_ft = Xtts.init_from_config(config)
+
+    ckpt = torch.load(custom_model_paths["model_path"], map_location=torch_device)
+    model_ft = _load_state_dict_flex(model_ft, ckpt, strict=False)
+
+    if tokenizer_source is None:
+        raise RuntimeError(
+            "Could not locate a tokenizer inside the base Coqui XTTS model."
+        )
+
+    model_ft.tokenizer = copy.deepcopy(tokenizer_source)
+
+    vocab_path = custom_model_paths.get("vocab_path")
+    if vocab_path:
+        try:
+            if hasattr(model_ft.tokenizer, "load_vocabulary"):
+                model_ft.tokenizer.load_vocabulary(vocab_path)
+            elif (
+                hasattr(model_ft.tokenizer, "processor")
+                and hasattr(model_ft.tokenizer.processor, "tokenizer")
+                and hasattr(
+                    model_ft.tokenizer.processor.tokenizer, "load_vocabulary"
+                )
+            ):
+                model_ft.tokenizer.processor.tokenizer.load_vocabulary(vocab_path)
+            else:
+                with open(vocab_path, "r", encoding="utf-8") as file:
+                    vocab_content = file.read()
+                setattr(model_ft.tokenizer, "_be_vocab_json", vocab_content)
+            logger.info("✅ Custom vocab applied to fine-tuned XTTS tokenizer")
+        except Exception as vocab_error:
+            logger.warning(
+                "Unable to apply custom XTTS vocab: %s", str(vocab_error)
+            )
+
+    try:
+        tok = getattr(model_ft, "tokenizer", None)
+        if tok is not None and hasattr(tok, "preprocess_text"):
+            _orig_preprocess = tok.preprocess_text
+
+            def _preprocess_text_with_be(self, txt, lang):
+                if lang == "be":
+                    return txt
+                return _orig_preprocess(txt, lang)
+
+            tok.preprocess_text = types.MethodType(_preprocess_text_with_be, tok)
+            logger.info("✅ Tokenizer patched for 'be' language.")
+        else:
+            logger.warning(
+                "Tokenizer preprocess_text not found; cannot patch 'be'."
+            )
+    except Exception as patch_err:
+        logger.error("Could not patch tokenizer for 'be': %s", str(patch_err))
+
+    model_ft = model_ft.to(torch_device)
+    model_ft.eval()
+
+    sampling_rate = 24000
+    return model_ft, torch_device, sampling_rate
+
+
+def _infer_xtts_segment(
+    model,
+    torch_device,
+    text,
+    language_code,
+    speaker_wav_path,
+    temperature=0.7,
+):
+    import torch
+    import numpy as np
+
+    gpt_cond_latent, speaker_embedding = model.get_conditioning_latents(
+        audio_path=[speaker_wav_path]
+    )
+
+    with torch.inference_mode():
+        out = model.inference(
+            text,
+            language_code,
+            gpt_cond_latent,
+            speaker_embedding,
+            temperature=temperature,
+        )
+
+    def _to_numpy_1d(x):
+        if isinstance(x, torch.Tensor):
+            return x.detach().cpu().numpy().astype(np.float32).squeeze()
+        if isinstance(x, np.ndarray):
+            return x.astype(np.float32).squeeze()
+        if isinstance(x, list):
+            return np.array(x, dtype=np.float32).squeeze()
+        raise TypeError(
+            f"Don't know how to convert type {type(x)} from XTTS inference to audio array"
+        )
+
+    if isinstance(out, dict):
+        for key in ["wav", "audio", "audio_data", "audio_wav"]:
+            if key in out:
+                return _to_numpy_1d(out[key])
+        raise TypeError(
+            f"XTTS inference returned dict without known audio key. Keys: {list(out.keys())}"
+        )
+
+    return _to_numpy_1d(out)
+
+
 def segments_coqui_tts(
     filtered_coqui_segments,
     TRANSLATE_AUDIO_TO,
@@ -589,15 +868,13 @@ def segments_coqui_tts(
     dereverb_automatic=True,
     emotion=None,
 ):
-    """XTTS
-    Install:
-    pip install -q TTS==0.21.1
-    pip install -q numpy==1.23.5
-
-    Notes:
-    - tts_name is the wav|mp3|ogg|m4a file for VC
     """
-    from TTS.api import TTS
+    XTTS v2 (у т.л. fine-tuned беларуская):
+    - Загружаем базавую XTTS праз TTS.api (для tokenizer і fallback).
+    - Калі мова 'be' і ёсць кастомныя вагі -> збіраем мадэль праз Xtts, падліваем вагі.
+    - Інакш выкарыстоўваем стандартны base_api_model.tts().
+    """
+    from TTS.api import TTS as TTS_ApiFallback
 
     TRANSLATE_AUDIO_TO = fix_code_language(TRANSLATE_AUDIO_TO, syntax="coqui")
     supported_lang_coqui = [
@@ -617,15 +894,13 @@ def segments_coqui_tts(
         "hu",
         "ko",
         "ja",
+        "be",
     ]
     if TRANSLATE_AUDIO_TO not in supported_lang_coqui:
         raise TTS_OperationError(
             f"'{TRANSLATE_AUDIO_TO}' is not a supported language for Coqui XTTS"
         )
-    # Emotion and speed can only be used with Coqui Studio models. discontinued
-    # emotions = ["Neutral", "Happy", "Sad", "Angry", "Dull"]
-
-    if delete_previous_automatic:
+    if delete_previous_automatic and speakers_coqui:
         for spk in speakers_coqui:
             remove_files(f"_XTTS_/AUTOMATIC_{spk}.wav")
 
@@ -637,15 +912,54 @@ def segments_coqui_tts(
         dereverb_automatic,
     )
 
-    # Init TTS
-    device = os.environ.get("SONITR_DEVICE")
-    model = TTS(model_id_coqui).to(device)
-    sampling_rate = 24000
+    device_env = os.environ.get("SONITR_DEVICE")
 
-    # filtered_segments = filtered_coqui_segments['segments']
-    # Sorting the segments by 'tts_name'
-    # sorted_segments = sorted(filtered_segments, key=lambda x: x['tts_name'])
-    # logger.debug(sorted_segments)
+    logger.info(
+        "Loading base Coqui XTTS model '%s' for tokenizer / fallback",
+        model_id_coqui,
+    )
+    base_api_model = TTS_ApiFallback(model_id_coqui, progress_bar=False)
+    try:
+        base_api_model = base_api_model.to(device_env)
+    except Exception:
+        pass
+
+    base_sampling_rate = 24000
+
+    tokenizer_source = _extract_xtts_tokenizer(base_api_model)
+    if tokenizer_source is None:
+        raise RuntimeError(
+            "Could not extract tokenizer from base Coqui XTTS model."
+        )
+
+    custom_model_paths = download_custom_coqui_model(TRANSLATE_AUDIO_TO)
+    use_finetune = bool(
+        TRANSLATE_AUDIO_TO == "be"
+        and custom_model_paths
+        and all(
+            key in custom_model_paths
+            for key in ("model_path", "config_path", "vocab_path")
+        )
+    )
+
+    finetune_model = None
+    torch_device = None
+    finetune_sampling_rate = base_sampling_rate
+    if use_finetune:
+        logger.info(
+            "Building fine-tuned XTTS for language '%s' from custom checkpoint.",
+            TRANSLATE_AUDIO_TO,
+        )
+        finetune_model, torch_device, finetune_sampling_rate = _init_xtts_finetune_model(
+            custom_model_paths,
+            device_env,
+            tokenizer_source,
+        )
+    elif custom_model_paths:
+        logger.warning(
+            "Custom XTTS assets for '%s' were downloaded but could not be used.",
+            TRANSLATE_AUDIO_TO,
+        )
 
     for segment in tqdm(filtered_coqui_segments["segments"]):
         speaker = segment["speaker"]
@@ -655,22 +969,34 @@ def segments_coqui_tts(
         if tts_name == "_XTTS_/AUTOMATIC.wav":
             tts_name = f"_XTTS_/AUTOMATIC_{speaker}.wav"
 
-        # make the tts audio
         filename = f"audio/{start}.ogg"
-        logger.info(f"{text} >> {filename}")
+        logger.info(f">> XTTS synth [{TRANSLATE_AUDIO_TO}] '{text}' -> {filename}")
         try:
-            # Infer
-            wav = model.tts(
-                text=text, speaker_wav=tts_name, language=TRANSLATE_AUDIO_TO
-            )
+            if use_finetune:
+                wav_np = _infer_xtts_segment(
+                    model=finetune_model,
+                    torch_device=torch_device,
+                    text=text,
+                    language_code=TRANSLATE_AUDIO_TO,
+                    speaker_wav_path=tts_name,
+                    temperature=0.7,
+                )
+                sr_out = finetune_sampling_rate
+            else:
+                wav_np = base_api_model.tts(
+                    text=text,
+                    speaker_wav=tts_name,
+                    language=TRANSLATE_AUDIO_TO,
+                )
+                sr_out = base_sampling_rate
+
             data_tts = pad_array(
-                wav,
-                sampling_rate,
+                wav_np,
+                sr_out,
             )
-            # Save file
             write_chunked(
                 file=filename,
-                samplerate=sampling_rate,
+                samplerate=sr_out,
                 data=data_tts,
                 format="ogg",
                 subtype="vorbis",
@@ -681,13 +1007,15 @@ def segments_coqui_tts(
         gc.collect()
         torch.cuda.empty_cache()
     try:
-        del model
-        gc.collect()
-        torch.cuda.empty_cache()
-    except Exception as error:
-        logger.error(str(error))
-        gc.collect()
-        torch.cuda.empty_cache()
+        del finetune_model
+    except Exception:
+        pass
+    try:
+        del base_api_model
+    except Exception:
+        pass
+    gc.collect()
+    torch.cuda.empty_cache()
 
 
 # =====================================

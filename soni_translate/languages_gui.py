@@ -51,7 +51,7 @@ language_data = {
         - PIPER TTS → format `en_US-lessac-high VITS-onnx` → Same as the previous one, but it is optimized for both CPU and GPU.
         - BARK → format `en_speaker_0-Male BARK` → Good quality but slow, and it is prone to hallucinations.
         - OpenAI TTS → format `>alloy OpenAI-TTS` → Multilingual but it needs an OpenAI API key.
-        - Coqui XTTS → format `_XTTS_/AUTOMATIC.wav` → Only available for Chinese (Simplified), English, French, German, Italian, Portuguese, Polish, Turkish, Russian, Dutch, Czech, Arabic, Spanish, Hungarian, Korean and Japanese.
+        - Coqui XTTS → format `_XTTS_/AUTOMATIC.wav` → Only available for Chinese (Simplified), English, French, German, Italian, Portuguese, Polish, Turkish, Russian, Dutch, Czech, Arabic, Spanish, Hungarian, Korean, Japanese, and Belarusian.
 
         ---
 
@@ -241,7 +241,7 @@ language_data = {
         - PIPER TTS → formato `en_US-lessac-high VITS-onnx` → Igual que el anterior, pero está optimizado tanto para CPU como para GPU.
         - BARK → formato `en_speaker_0-Male BARK` → De buena calidad pero lento y propenso a alucinaciones.
         - OpenAI TTS → formato `>alloy OpenAI-TTS` → Multilingüe pero necesita una OpenAI API key.
-        - Coqui XTTS → formato `_XTTS_/AUTOMATIC.wav` → Solo disponible para Chinese (Simplified), English, French, German, Italian, Portuguese, Polish, Turkish, Russian, Dutch, Czech, Arabic, Spanish, Hungarian, Korean y Japanese.
+        - Coqui XTTS → formato `_XTTS_/AUTOMATIC.wav` → Solo disponible para Chinese (Simplified), English, French, German, Italian, Portuguese, Polish, Turkish, Russian, Dutch, Czech, Arabic, Spanish, Hungarian, Korean, Japanese y Belarusian.
 
         ---
 
@@ -431,7 +431,7 @@ language_data = {
         - PIPER TTS → format `en_US-lessac-high VITS-onnx` → Identique au précédent, mais optimisé pour le CPU et le GPU.
         - BARK → format `en_speaker_0-Male BARK` → Bonne qualité mais lent, et sujet aux hallucinations.
         - OpenAI TTS → format `>alloy OpenAI-TTS` → Multilingue mais nécessite une OpenAI API key.
-        - Coqui XTTS → format `_XTTS_/AUTOMATIC.wav` → Disponible uniquement pour le chinois (simplifié), l'anglais, le français, l'allemand, l'italien, le portugais, le polonais, le turc, le russe, le néerlandais, le tchèque, l'arabe, l'espagnol, le hongrois, le coréen et le japonais.
+        - Coqui XTTS → format `_XTTS_/AUTOMATIC.wav` → Disponible uniquement pour le chinois (simplifié), l'anglais, le français, l'allemand, l'italien, le portugais, le polonais, le turc, le russe, le néerlandais, le tchèque, l'arabe, l'espagnol, le hongrois, le coréen, le japonais et le biélorusse.
 
         ---
 
@@ -621,7 +621,7 @@ language_data = {
         - PIPER TTS → Format `en_US-lessac-high VITS-onnx` → Wie das vorherige, aber optimiert für CPU und GPU.
         - BARK → Format `en_speaker_0-Male BARK` → Gute Qualität, aber langsam und anfällig für Halluzinationen.
         - OpenAI TTS → Format `>alloy OpenAI-TTS` → Multisprachig, erfordert jedoch einen OpenAI API key
-        - Coqui XTTS → Format `_XTTS_/AUTOMATIC.wav` → Nur verfügbar für Chinesisch (vereinfacht), Englisch, Französisch, Deutsch, Italienisch, Portugiesisch, Polnisch, Türkisch, Russisch, Niederländisch, Tschechisch, Arabisch, Spanisch, Ungarisch, Koreanisch und Japanisch.
+        - Coqui XTTS → Format `_XTTS_/AUTOMATIC.wav` → Nur verfügbar für Chinesisch (vereinfacht), Englisch, Französisch, Deutsch, Italienisch, Portugiesisch, Polnisch, Türkisch, Russisch, Niederländisch, Tschechisch, Arabisch, Spanisch, Ungarisch, Koreanisch, Japanisch und Belarussisch.
 
         ---
 
@@ -811,7 +811,7 @@ language_data = {
         - PIPER TTS → formato `en_US-lessac-high VITS-onnx` → Come il precedente, ma ottimizzato sia per CPU che GPU.
         - BARK → formato `en_speaker_0-Male BARK` → Buona qualità ma lenta e soggetta ad allucinazioni.
         - OpenAI TTS → formato `>alloy OpenAI-TTS` → Multilingue ma richiede una OpenAI API key.
-        - Coqui XTTS → formato `_XTTS_/AUTOMATIC.wav` → Disponibile solo per cinese (semplificato), inglese, francese, tedesco, italiano, portoghese, polacco, turco, russo, olandese, ceco, arabo, spagnolo, ungherese, coreano e giapponese.
+        - Coqui XTTS → formato `_XTTS_/AUTOMATIC.wav` → Disponibile solo per cinese (semplificato), inglese, francese, tedesco, italiano, portoghese, polacco, turco, russo, olandese, ceco, arabo, spagnolo, ungherese, coreano, giapponese e bielorusso.
 
         ---
 
@@ -1001,7 +1001,7 @@ language_data = {
         - PIPER TTS → 形式 `en_US-lessac-high VITS-onnx` → 前述のものと同じですが、CPUとGPUの両方に最適化されています。
         - BARK → 形式 `en_speaker_0-Male BARK` → 品質は良好ですが、遅く、幻覚に陥りやすいです。
         - OpenAI TTS → フォーマット `>alloy OpenAI-TTS` → 多言語対応ですが、OpenAIのAPIキーが必要です
-        - Coqui XTTS → 形式 `_XTTS_/AUTOMATIC.wav` → 中国語（簡体字）、英語、フランス語、ドイツ語、イタリア語、ポルトガル語、ポーランド語、トルコ語、ロシア語、オランダ語、チェコ語、アラビア語、スペイン語、ハンガリー語、韓国語、日本語のみ利用可能です。
+        - Coqui XTTS → 形式 `_XTTS_/AUTOMATIC.wav` → 中国語（簡体字）、英語、フランス語、ドイツ語、イタリア語、ポルトガル語、ポーランド語、トルコ語、ロシア語、オランダ語、チェコ語、アラビア語、スペイン語、ハンガリー語、韓国語、日本語、ベラルーシ語のみ利用可能です。
 
         ---
 
@@ -1191,7 +1191,7 @@ language_data = {
           - PIPER TTS → 格式 `en_US-lessac-high VITS-onnx` → 与前一款相同，但针对CPU和GPU进行了优化。
           - BARK → 格式 `en_speaker_0-Male BARK` → 质量良好但速度较慢，易产生幻觉。
           - OpenAI TTS → 格式 `>alloy OpenAI-TTS` → 多语言但需要 OpenAI API key
-          - Coqui XTTS → 格式 `_XTTS_/AUTOMATIC.wav` → 仅支持简体中文、英文、法文、德文、意大利文、葡萄牙文、波兰文、土耳其文、俄文、荷兰文、捷克文、阿拉伯文、西班牙文、匈牙利文、韩文和日文。
+          - Coqui XTTS → 格式 `_XTTS_/AUTOMATIC.wav` → 仅支持简体中文、英文、法文、德文、意大利文、葡萄牙文、波兰文、土耳其文、俄文、荷兰文、捷克文、阿拉伯文、西班牙文、匈牙利文、韩文、日文和白俄罗斯文。
 
           ---
 
@@ -1381,7 +1381,7 @@ language_data = {
         - PIPER TTS → формат `en_US-lessac-high VITS-onnx` → Те ж саме, що й попередній, але оптимізований як для ЦП, так і для ГПУ.
         - BARK → формат `en_speaker_0-Male BARK` → Хороша якість, але повільна, і вона схильна до галюцинацій.
         - OpenAI TTS → формат `>alloy OpenAI-TTS` → Мультиязычный, але потребує OpenAI API key
-        - Coqui XTTS → формат `_XTTS_/AUTOMATIC.wav` → Доступний лише для китайської (спрощеної), англійської, французької, німецької, італійської, португальської, польської, турецької, російської, голландської, чеської, арабської, іспанської, угорської, корейської та японської.
+        - Coqui XTTS → формат `_XTTS_/AUTOMATIC.wav` → Доступний лише для китайської (спрощеної), англійської, французької, німецької, італійської, португальської, польської, турецької, російської, голландської, чеської, арабської, іспанської, угорської, корейської, японської та білоруської.
 
         ---
 
@@ -1571,7 +1571,7 @@ language_data = {
           - PIPER TTS → الصيغة `en_US-lessac-high VITS-onnx` → نفس الشيء كما السابق، ولكنه محسّن لكل من وحدة المعالجة المركزية ووحدة معالجة الرسومات.
           - BARK → الصيغة `en_speaker_0-Male BARK` → جودة جيدة ولكن بطيء، ويميل إلى التهليل.
           - OpenAI TTS → الصيغة `>alloy OpenAI-TTS` → متعدد اللغات ولكن يتطلب OpenAI API key
-          - Coqui XTTS → الصيغة `_XTTS_/AUTOMATIC.wav` → متاحة فقط للصينية (المبسطة)، الإنجليزية، الفرنسية، الألمانية، الإيطالية، البرتغالية، البولندية، التركية، الروسية، الهولندية، التشيكية، العربية، الإسبانية، الهنغارية، الكورية واليابانية.
+          - Coqui XTTS → الصيغة `_XTTS_/AUTOMATIC.wav` → متاحة فقط للصينية (المبسطة)، الإنجليزية، الفرنسية، الألمانية، الإيطالية، البرتغالية، البولندية، التركية، الروسية، الهولندية، التشيكية، العربية، الإسبانية، الهنغارية، الكورية، اليابانية والبلاروسية.
 
           ---
 
@@ -1761,7 +1761,7 @@ language_data = {
         - PIPER TTS → формат `en_US-lessac-high VITS-onnx` → То же самое, что и предыдущее, но оптимизировано как для CPU, так и для GPU.
         - BARK → формат `en_speaker_0-Male BARK` → Хорошее качество, но медленное, и оно подвержено галлюцинациям.
         - OpenAI TTS → формат `>alloy OpenAI-TTS` → Многоязычный, но требуется OpenAI API key
-        - Coqui XTTS → формат `_XTTS_/AUTOMATIC.wav` → Доступен только для китайского (упрощенного), английского, французского, немецкого, итальянского, португальского, польского, турецкого, русского, голландского, чешского, арабского, испанского, венгерского, корейского и японского языков.
+        - Coqui XTTS → формат `_XTTS_/AUTOMATIC.wav` → Доступен только для китайского (упрощенного), английского, французского, немецкого, итальянского, португальского, польского, турецкого, русского, голландского, чешского, арабского, испанского, венгерского, корейского, японского и белорусского языков.
 
         ---
 
@@ -1951,7 +1951,7 @@ language_data = {
         - PIPER TTS → biçim `tr_TR-lessac-high VITS-onnx` → Öncekiyle aynı, ancak hem CPU hem de GPU için optimize edilmiştir.
         - BARK → biçim `tr_speaker_0-Kadın BARK` → İyi kalite ancak yavaş ve halüsinasyonlara eğilimli.
         - OpenAI TTS → biçim `>alloy OpenAI-TTS` → Çok dilli ancak bir OpenAI API key gerektirir
-        - Coqui XTTS → biçim `_XTTS_/AUTOMATIC.wav` → Sadece Çince (Basitleştirilmiş), İngilizce, Fransızca, Almanca, İtalyanca, Portekizce, Lehçe, Türkçe, Rusça, Hollandaca, Çekçe, Arapça, İspanyolca, Macarca, Korece ve Japonca için mevcut.
+        - Coqui XTTS → biçim `_XTTS_/AUTOMATIC.wav` → Sadece Çince (Basitleştirilmiş), İngilizce, Fransızca, Almanca, İtalyanca, Portekizce, Lehçe, Türkçe, Rusça, Hollandaca, Çekçe, Arapça, İspanyolca, Macarca, Korece, Japonca ve Belarusça için mevcut.
 
         ---
 
@@ -2142,7 +2142,7 @@ language_data = {
         - PIPER TTS → format `en_US-lessac-high VITS-onnx` → Sama seperti sebelumnya, tetapi dioptimalkan untuk CPU dan GPU.
         - BARK → format `en_speaker_0-Male BARK` → Kualitas bagus tetapi lambat, dan rentan terhadap halusinasi.
         - OpenAI TTS → format `>alloy OpenAI-TTS` → Multibahasa tetapi membutuhkan OpenAI API key
-        - Coqui XTTS → format `_XTTS_/AUTOMATIC.wav` → Hanya tersedia untuk Cina (Sederhana), Inggris, Prancis, Jerman, Italia, Portugis, Polandia, Turki, Rusia, Belanda, Ceko, Arab, Spanyol, Hungaria, Korea, dan Jepang.
+        - Coqui XTTS → format `_XTTS_/AUTOMATIC.wav` → Hanya tersedia untuk Cina (Sederhana), Inggris, Prancis, Jerman, Italia, Portugis, Polandia, Turki, Rusia, Belanda, Ceko, Arab, Spanyol, Hungaria, Korea, Jepang, dan Belarusia.
 
         ---
 
@@ -2332,7 +2332,7 @@ language_data = {
         - PIPER TTS → formato `en_US-lessac-high VITS-onnx` → O mesmo que o anterior, mas é otimizado para CPU e GPU.
         - BARK → formato `en_speaker_0-Male BARK` → Boa qualidade, mas lento e propenso a alucinações.
         - OpenAI TTS → formato `>alloy OpenAI-TTS` → Multilíngue mas requer uma OpenAI API key
-        - Coqui XTTS → formato `_XTTS_/AUTOMATIC.wav` → Disponível apenas para Chinês (Simplificado), Inglês, Francês, Alemão, Italiano, Português, Polonês, Turco, Russo, Holandês, Tcheco, Árabe, Espanhol, Húngaro, Coreano e Japonês.
+        - Coqui XTTS → formato `_XTTS_/AUTOMATIC.wav` → Disponível apenas para Chinês (Simplificado), Inglês, Francês, Alemão, Italiano, Português, Polonês, Turco, Russo, Holandês, Tcheco, Árabe, Espanhol, Húngaro, Coreano, Japonês e Bielorrusso.
 
         ---
 
@@ -2522,7 +2522,7 @@ language_data = {
           - PIPER TTS → प्रारूप `en_US-lessac-high VITS-onnx` → पिछले वाले के समान, लेकिन यह CPU और GPU दोनों के लिए अनुकूलित है।
           - BARK → प्रारूप `en_speaker_0-Male BARK` → अच्छी गुणवत्ता है लेकिन धीमी, और यह हैलुसिनेशन के लिए प्रवृत्त है।
           - OpenAI TTS → प्रारूप `>alloy OpenAI-TTS` → बहुभाषी लेकिन इसमें एक OpenAI API key की आवश्यकता है
-          - Coqui XTTS → प्रारूप `_XTTS_/AUTOMATIC.wav` → केवल चीनी (सरलीकृत), अंग्रेजी, फ्रेंच, जर्मन, इतालवी, पुर्तगाली, पोलिश, तुर्की, रूसी, डच, चेक, अरबी, स्पैनिश, हंगेरियन, कोरियाई और जापानी के लिए ही उपलब्ध है।
+          - Coqui XTTS → प्रारूप `_XTTS_/AUTOMATIC.wav` → केवल चीनी (सरलीकृत), अंग्रेजी, फ्रेंच, जर्मन, इतालवी, पुर्तगाली, पोलिश, तुर्की, रूसी, डच, चेक, अरबी, स्पैनिश, हंगेरियन, कोरियाई, जापानी और बेलारूसी के लिए ही उपलब्ध है।
 
           ---
 
@@ -2712,7 +2712,7 @@ language_data = {
         - PIPER TTS → định dạng `en_US-lessac-high VITS-onnx` → Giống như cái trước, nhưng được tối ưu hóa cho cả CPU và GPU.
         - BARK → định dạng `en_speaker_0-Male BARK` → Chất lượng tốt nhưng chậm, và dễ bị ảo giác.
         - OpenAI TTS → định dạng `>alloy OpenAI-TTS` → Đa ngôn ngữ nhưng cần một OpenAI API key
-        - Coqui XTTS → định dạng `_XTTS_/AUTOMATIC.wav` → Chỉ có sẵn cho tiếng Trung (Giản thể), tiếng Anh, tiếng Pháp, tiếng Đức, tiếng Ý, tiếng Bồ Đào Nha, tiếng Ba Lan, tiếng Thổ Nhĩ Kỳ, tiếng Nga, tiếng Hà Lan, tiếng Séc, tiếng Ả Rập, tiếng Tây Ban Nha, tiếng Hungary, tiếng Hàn và tiếng Nhật.
+        - Coqui XTTS → định dạng `_XTTS_/AUTOMATIC.wav` → Chỉ có sẵn cho tiếng Trung (Giản thể), tiếng Anh, tiếng Pháp, tiếng Đức, tiếng Ý, tiếng Bồ Đào Nha, tiếng Ba Lan, tiếng Thổ Nhĩ Kỳ, tiếng Nga, tiếng Hà Lan, tiếng Séc, tiếng Ả Rập, tiếng Tây Ban Nha, tiếng Hungary, tiếng Hàn, tiếng Nhật và tiếng Belarus.
 
         ---
 
@@ -2902,7 +2902,7 @@ language_data = {
         - PIPER TTS → format `en_US-lessac-high VITS-onnx` → To samo co poprzednie, ale zoptymalizowane zarówno pod CPU, jak i GPU.
         - BARK → format `en_speaker_0-Male BARK` → Dobra jakość, ale wolne działanie, podatne na halucynacje.
         - OpenAI TTS → format `>alloy OpenAI-TTS` → Wielojęzyczne, ale wymaga klucza OpenAI API
-        - Coqui XTTS → format `_XTTS_/AUTOMATIC.wav` → Dostępne tylko dla języka chińskiego (uproszczonego), angielskiego, francuskiego, niemieckiego, włoskiego, portugalskiego, polskiego, tureckiego, rosyjskiego, niderlandzkiego, czeskiego, arabskiego, hiszpańskiego, węgierskiego, koreańskiego i japońskiego.
+        - Coqui XTTS → format `_XTTS_/AUTOMATIC.wav` → Dostępne tylko dla języka chińskiego (uproszczonego), angielskiego, francuskiego, niemieckiego, włoskiego, portugalskiego, polskiego, tureckiego, rosyjskiego, niderlandzkiego, czeskiego, arabskiego, hiszpańskiego, węgierskiego, koreańskiego, japońskiego i białoruskiego.
 
         ---
 
@@ -3092,7 +3092,7 @@ language_data = {
         - PIPER TTS → format `en_US-lessac-high VITS-onnx` → Samma som den föregående, men den är optimerad för både CPU och GPU.
         - BARK → format `en_speaker_0-Male BARK` → Bra kvalitet men långsam och benägen för hallucinationer.
         - OpenAI TTS → format `>alloy OpenAI-TTS` → Multispråkigt men kräver en OpenAI API-nyckel
-        - Coqui XTTS → format `_XTTS_/AUTOMATIC.wav` → Endast tillgängligt för kinesiska (förenklad), engelska, franska, tyska, italienska, portugisiska, polska, turkiska, ryska, nederländska, tjeckiska, arabiska, spanska, ungerska, koreanska och japanska.
+        - Coqui XTTS → format `_XTTS_/AUTOMATIC.wav` → Endast tillgängligt för kinesiska (förenklad), engelska, franska, tyska, italienska, portugisiska, polska, turkiska, ryska, nederländska, tjeckiska, arabiska, spanska, ungerska, koreanska, japanska och vitryska.
 
         ---
 
@@ -3282,7 +3282,7 @@ language_data = {
         - PIPER TTS → 형식 `en_US-lessac-high VITS-onnx` → 이전 것과 동일하지만 CPU와 GPU 모두 최적화되었습니다.
         - BARK → 형식 `en_speaker_0-Male BARK` → 품질은 좋지만 느리고 환각에 취약합니다.
         - OpenAI TTS → 형식 `>alloy OpenAI-TTS` → 다국어지만 OpenAI API 키가 필요합니다
-        - Coqui XTTS → 형식 `_XTTS_/AUTOMATIC.wav` → 중국어 (간체), 영어, 프랑스어, 독일어, 이탈리아어, 포르투갈어, 폴란드어, 터키어, 러시아어, 네덜란드어, 체코어, 아랍어, 스페인어, 헝가리어, 한국어 및 일본어만 사용할 수 있습니다.
+        - Coqui XTTS → 형식 `_XTTS_/AUTOMATIC.wav` → 중국어 (간체), 영어, 프랑스어, 독일어, 이탈리아어, 포르투갈어, 폴란드어, 터키어, 러시아어, 네덜란드어, 체코어, 아랍어, 스페인어, 헝가리어, 한국어, 일본어 및 벨라루스어만 사용할 수 있습니다.
 
         ---
 
@@ -3472,7 +3472,7 @@ language_data = {
         - PIPER TTS → स्वरूप `en_US-lessac-high VITS-onnx` → म्हणजे अखेरचा, परंतु ह्यात CPU आणि GPU दोन्हीत अनुकूलित केले आहे.
         - BARK → स्वरूप `en_speaker_0-Male BARK` → चांगली गुणवत्ता परंतु मंद, आणि हे हल्ल्यांसाठी आदर्श आहे.
         - OpenAI TTS → स्वरूप `>alloy OpenAI-TTS` → बहुभाषिक आहे पण OpenAI API की आवश्यकता आहे
-        - Coqui XTTS → स्वरूप `_XTTS_/AUTOMATIC.wav` → केवळ उपलब्ध आहे: चिनी (सरलीकृत), इंग्रजी, फ्रेंच, जर्मन, इटालियन, पोर्तुगीज, पोलिश, तुर्की, रशियन, डच, चेक, अरबी, स्पॅनिश, हंगेरियन, कोरियन आणि जपानी.
+        - Coqui XTTS → स्वरूप `_XTTS_/AUTOMATIC.wav` → केवळ उपलब्ध आहे: चिनी (सरलीकृत), इंग्रजी, फ्रेंच, जर्मन, इटालियन, पोर्तुगीज, पोलिश, तुर्की, रशियन, डच, चेक, अरबी, स्पॅनिश, हंगेरियन, कोरियन, जपानी आणि बेलारूसी.
 
         ---
 
@@ -3660,7 +3660,7 @@ language_data = {
         - PIPER TTS → format `en_US-lessac-high VITS-onnx` → Əvvəlki ilə eynidir, ancaq hem CPU, hem də GPU üçün optimalaşdırılmışdır.
         - BARK → format `en_speaker_0-Male BARK` → Yaxşı keyfiyyətli, ancaq yavaş və halüsinasiyalara meyllidir.
         - OpenAI TTS → format `>alloy OpenAI-TTS` → Çoxdilli, lakin OpenAI API açarı tələb olunur
-        - Coqui XTTS → format `_XTTS_/AUTOMATIC.wav` → Yalnız Çin (Sadələşdirilmiş), İngilis, Fransız, Alman, İtalyan, Portuqal, Poliş, Türk, Rus, Holland, Çex, Ərəb, İspan, Macar, Korey və Yapon dilində mövcuddur.
+        - Coqui XTTS → format `_XTTS_/AUTOMATIC.wav` → Yalnız Çin (Sadələşdirilmiş), İngilis, Fransız, Alman, İtalyan, Portuqal, Poliş, Türk, Rus, Holland, Çex, Ərəb, İspan, Macar, Korey, Yapon və Belarus dilində mövcuddur.
 
         ---
 
@@ -3851,7 +3851,7 @@ language_data = {
         - PIPER TTS → فرمت `en_US-lessac-high VITS-onnx` → مانند قبلی، اما برای CPU و GPU بهینه‌سازی شده است.
         - BARK → فرمت `en_speaker_0-Male BARK` → کیفیت خوب ولی کند و مستعد هذیان.
         - OpenAI TTS → فرمت `>alloy OpenAI-TTS` → چندزبانه اما نیاز به کلید API OpenAI دارد.
-        - Coqui XTTS → فرمت `_XTTS_/AUTOMATIC.wav` → فقط برای چینی (ساده‌شده)، انگلیسی، فرانسوی، آلمانی، ایتالیایی، پرتغالی، لهستانی، ترکی، روسی، هلندی، چک، عربی، اسپانیایی، مجارستانی، کره‌ای و ژاپنی در دسترس است.
+        - Coqui XTTS → فرمت `_XTTS_/AUTOMATIC.wav` → فقط برای چینی (ساده‌شده)، انگلیسی، فرانسوی، آلمانی، ایتالیایی، پرتغالی، لهستانی، ترکی، روسی، هلندی، چک، عربی، اسپانیایی، مجارستانی، کره‌ای، ژاپنی و بلاروسی در دسترس است.
 
         ---
 
@@ -4042,7 +4042,7 @@ language_data = {
         - PIPER TTS → formaat `en_US-lessac-high VITS-onnx` → Dieselfde as die vorige een, maar dit is geoptimaliseer vir beide CPU en GPU.
         - BARK → formaat `en_speaker_0-Male BARK` → Goeie kwaliteit maar stadig, en dit is geneig tot hallusinasies.
         - OpenAI TTS → formaat `>alloy OpenAI-TTS` → Veeltalig maar dit benodig 'n OpenAI API sleutel.
-        - Coqui XTTS → formaat `_XTTS_/AUTOMATIC.wav` → Slegs beskikbaar vir Vereenvoudigde Chinees, Engels, Frans, Duits, Italiaans, Portugees, Pools, Turks, Russies, Nederlands, Tsjeggies, Arabies, Spaans, Hongaars, Koreaans en Japanees.
+        - Coqui XTTS → formaat `_XTTS_/AUTOMATIC.wav` → Slegs beskikbaar vir Vereenvoudigde Chinees, Engels, Frans, Duits, Italiaans, Portugees, Pools, Turks, Russies, Nederlands, Tsjeggies, Arabies, Spaans, Hongaars, Koreaans, Japanees en Belarussies.
 
         ---
 
