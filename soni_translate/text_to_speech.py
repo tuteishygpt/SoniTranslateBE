@@ -391,6 +391,55 @@ def segments_vits_tts(filtered_vits_segments, TRANSLATE_AUDIO_TO):
 # =====================================
 
 
+CUSTOM_COQUI_MODELS = {
+    "be": {
+        "repo": "archivartaunik/BE_XTTS_V2_10ep250k",
+        "files": {
+            "model_path": "model.pth",
+            "config_path": "config.json",
+            "vocab_path": "vocab.json",
+        },
+    }
+}
+
+
+def download_custom_coqui_model(language_code):
+    model_meta = CUSTOM_COQUI_MODELS.get(language_code)
+    if not model_meta:
+        return {}
+
+    repo = model_meta["repo"]
+    sanitized_repo = repo.replace("/", "_")
+    model_dir = os.path.join("COQUI_MODELS", sanitized_repo)
+    create_directories(model_dir)
+
+    downloaded_paths = {}
+    for key, filename in model_meta["files"].items():
+        url = f"https://huggingface.co/{repo}/resolve/main/{filename}"
+        try:
+            downloaded_file = download_manager(
+                url=url, path=model_dir, progress=False
+            )
+        except Exception as error:
+            logger.error(
+                "Unable to download '%s' for custom Coqui model '%s': %s",
+                filename,
+                repo,
+                error,
+            )
+            return {}
+
+        if not downloaded_file or not Path(downloaded_file).is_file():
+            logger.error(
+                "Custom Coqui model file missing after download: %s", filename
+            )
+            return {}
+
+        downloaded_paths[key] = downloaded_file
+
+    return downloaded_paths
+
+
 def coqui_xtts_voices_list():
     main_folder = "_XTTS_"
     pattern_coqui = re.compile(r".+\.(wav|mp3|ogg|m4a)$")
@@ -580,6 +629,126 @@ def create_new_files_for_vc(
                     )
 
 
+# ---------- helpers for fine-tuned XTTS ----------
+
+
+def _init_xtts_finetune_model(custom_model_paths, device_str):
+    import torch
+    from TTS.tts.configs.xtts_config import XttsConfig
+    from TTS.tts.models.xtts import Xtts
+
+    if device_str is None:
+        device_str = "cpu"
+
+    torch_device = torch.device(
+        "cuda" if device_str == "cuda" and torch.cuda.is_available() else "cpu"
+    )
+
+    config_path = custom_model_paths["config_path"]
+    checkpoint_path = custom_model_paths["model_path"]
+    vocab_path = custom_model_paths.get("vocab_path")
+
+    config = XttsConfig()
+    config.load_json(config_path)
+    model_ft = Xtts.init_from_config(config)
+    model_ft.load_checkpoint(
+        config,
+        checkpoint_path=checkpoint_path,
+        vocab_path=vocab_path,
+        use_deepspeed=False,
+    )
+
+    model_ft = model_ft.to(torch_device)
+    model_ft.eval()
+
+    audio_cfg = getattr(model_ft.config, "audio", None)
+    sampling_rate = getattr(audio_cfg, "output_sample_rate", 24000)
+    return model_ft, sampling_rate
+
+
+
+
+
+def _xtts_conditioning_kwargs(model):
+    kwargs = {}
+    if hasattr(model.config, 'gpt_cond_len'):
+        kwargs['gpt_cond_len'] = model.config.gpt_cond_len
+    if hasattr(model.config, 'max_ref_len'):
+        kwargs['max_ref_length'] = model.config.max_ref_len
+    if hasattr(model.config, 'sound_norm_refs'):
+        kwargs['sound_norm_refs'] = model.config.sound_norm_refs
+    return kwargs
+
+
+def _prepare_xtts_conditioning(model, speaker_wav_path):
+    return model.get_conditioning_latents(
+        audio_path=speaker_wav_path,
+        **_xtts_conditioning_kwargs(model),
+    )
+
+
+def _infer_xtts_segment(
+    model,
+    text,
+    language_code,
+    speaker_wav_path,
+    temperature=0.1,
+    length_penalty=1.0,
+    repetition_penalty=10.0,
+    top_k=10,
+    top_p=0.3,
+    conditioning=None,
+):
+    import torch
+    import numpy as np
+
+    if conditioning is None:
+        gpt_cond_latent, speaker_embedding = _prepare_xtts_conditioning(
+            model,
+            speaker_wav_path,
+        )
+        conditioning = (gpt_cond_latent, speaker_embedding)
+    else:
+        gpt_cond_latent, speaker_embedding = conditioning
+
+    with torch.inference_mode():
+        out = model.inference(
+            text=text,
+            language=language_code,
+            gpt_cond_latent=gpt_cond_latent,
+            speaker_embedding=speaker_embedding,
+            temperature=temperature,
+            length_penalty=length_penalty,
+            repetition_penalty=repetition_penalty,
+            top_k=top_k,
+            top_p=top_p,
+        )
+
+    def _to_numpy_1d(x):
+        if isinstance(x, torch.Tensor):
+            return x.detach().cpu().numpy().astype(np.float32).squeeze()
+        if isinstance(x, np.ndarray):
+            return x.astype(np.float32).squeeze()
+        if isinstance(x, list):
+            return np.array(x, dtype=np.float32).squeeze()
+        raise TypeError(
+            f"Don't know how to convert type {type(x)} from XTTS inference to audio array"
+        )
+
+    if isinstance(out, dict):
+        for key in ['wav', 'audio', 'audio_data', 'audio_wav']:
+            if key in out:
+                return _to_numpy_1d(out[key])
+        raise TypeError(
+            f"XTTS inference returned dict without known audio key. Keys: {list(out.keys())}"
+        )
+
+    return _to_numpy_1d(out)
+
+
+
+
+
 def segments_coqui_tts(
     filtered_coqui_segments,
     TRANSLATE_AUDIO_TO,
@@ -589,15 +758,13 @@ def segments_coqui_tts(
     dereverb_automatic=True,
     emotion=None,
 ):
-    """XTTS
-    Install:
-    pip install -q TTS==0.21.1
-    pip install -q numpy==1.23.5
-
-    Notes:
-    - tts_name is the wav|mp3|ogg|m4a file for VC
     """
-    from TTS.api import TTS
+    XTTS v2 (у т.л. fine-tuned беларуская):
+    - Загружаем базавую XTTS праз TTS.api як fallback.
+    - Калі мова 'be' і ёсць кастомныя вагі -> паднімаем мадэль праз load_checkpoint з config/model/vocab.
+    - Інакш выкарыстоўваем стандартны base_api_model.tts().
+    """
+    from TTS.api import TTS as TTS_ApiFallback
 
     TRANSLATE_AUDIO_TO = fix_code_language(TRANSLATE_AUDIO_TO, syntax="coqui")
     supported_lang_coqui = [
@@ -617,15 +784,13 @@ def segments_coqui_tts(
         "hu",
         "ko",
         "ja",
+        "be",
     ]
     if TRANSLATE_AUDIO_TO not in supported_lang_coqui:
         raise TTS_OperationError(
             f"'{TRANSLATE_AUDIO_TO}' is not a supported language for Coqui XTTS"
         )
-    # Emotion and speed can only be used with Coqui Studio models. discontinued
-    # emotions = ["Neutral", "Happy", "Sad", "Angry", "Dull"]
-
-    if delete_previous_automatic:
+    if delete_previous_automatic and speakers_coqui:
         for spk in speakers_coqui:
             remove_files(f"_XTTS_/AUTOMATIC_{spk}.wav")
 
@@ -637,15 +802,58 @@ def segments_coqui_tts(
         dereverb_automatic,
     )
 
-    # Init TTS
-    device = os.environ.get("SONITR_DEVICE")
-    model = TTS(model_id_coqui).to(device)
-    sampling_rate = 24000
+    device_env = os.environ.get("SONITR_DEVICE")
 
-    # filtered_segments = filtered_coqui_segments['segments']
-    # Sorting the segments by 'tts_name'
-    # sorted_segments = sorted(filtered_segments, key=lambda x: x['tts_name'])
-    # logger.debug(sorted_segments)
+    logger.info(
+        "Loading base Coqui XTTS model '%s' for fallback synthesis",
+        model_id_coqui,
+    )
+    base_api_model = TTS_ApiFallback(model_id_coqui, progress_bar=False)
+    try:
+        base_api_model = base_api_model.to(device_env)
+    except Exception:
+        pass
+
+    base_sampling_rate = 24000
+
+    custom_model_paths = download_custom_coqui_model(TRANSLATE_AUDIO_TO)
+    use_finetune = bool(
+        TRANSLATE_AUDIO_TO == "be"
+        and custom_model_paths
+        and all(
+            key in custom_model_paths
+            for key in ("model_path", "config_path", "vocab_path")
+        )
+    )
+
+    finetune_model = None
+    finetune_sampling_rate = base_sampling_rate
+    conditioning_cache = {}
+    if use_finetune:
+        logger.info(
+            "Loading fine-tuned XTTS checkpoint for language '%s'.",
+            TRANSLATE_AUDIO_TO,
+        )
+        try:
+            finetune_model, finetune_sampling_rate = _init_xtts_finetune_model(
+                custom_model_paths,
+                device_env,
+            )
+        except Exception as load_error:
+            logger.error(
+                "Failed to initialise fine-tuned XTTS model: %s", load_error
+            )
+            finetune_model = None
+            finetune_sampling_rate = base_sampling_rate
+            use_finetune = False
+    if (
+        not use_finetune
+        and custom_model_paths
+        and TRANSLATE_AUDIO_TO == "be"
+    ):
+        logger.warning(
+            "Belarusian XTTS assets were downloaded but could not be initialised."
+        )
 
     for segment in tqdm(filtered_coqui_segments["segments"]):
         speaker = segment["speaker"]
@@ -655,22 +863,46 @@ def segments_coqui_tts(
         if tts_name == "_XTTS_/AUTOMATIC.wav":
             tts_name = f"_XTTS_/AUTOMATIC_{speaker}.wav"
 
-        # make the tts audio
         filename = f"audio/{start}.ogg"
-        logger.info(f"{text} >> {filename}")
+        logger.info(f">> XTTS synth [{TRANSLATE_AUDIO_TO}] '{text}' -> {filename}")
         try:
-            # Infer
-            wav = model.tts(
-                text=text, speaker_wav=tts_name, language=TRANSLATE_AUDIO_TO
-            )
+            if use_finetune:
+                conditioning = conditioning_cache.get(tts_name)
+                if conditioning is None:
+                    conditioning = _prepare_xtts_conditioning(
+                        finetune_model,
+                        tts_name,
+                    )
+                    conditioning_cache[tts_name] = conditioning
+
+                wav_np = _infer_xtts_segment(
+                    model=finetune_model,
+                    text=text,
+                    language_code=TRANSLATE_AUDIO_TO,
+                    speaker_wav_path=tts_name,
+                    temperature=0.1,
+                    length_penalty=1.0,
+                    repetition_penalty=10.0,
+                    top_k=10,
+                    top_p=0.3,
+                    conditioning=conditioning,
+                )
+                sr_out = finetune_sampling_rate
+            else:
+                wav_np = base_api_model.tts(
+                    text=text,
+                    speaker_wav=tts_name,
+                    language=TRANSLATE_AUDIO_TO,
+                )
+                sr_out = base_sampling_rate
+
             data_tts = pad_array(
-                wav,
-                sampling_rate,
+                wav_np,
+                sr_out,
             )
-            # Save file
             write_chunked(
                 file=filename,
-                samplerate=sampling_rate,
+                samplerate=sr_out,
                 data=data_tts,
                 format="ogg",
                 subtype="vorbis",
@@ -681,13 +913,15 @@ def segments_coqui_tts(
         gc.collect()
         torch.cuda.empty_cache()
     try:
-        del model
-        gc.collect()
-        torch.cuda.empty_cache()
-    except Exception as error:
-        logger.error(str(error))
-        gc.collect()
-        torch.cuda.empty_cache()
+        del finetune_model
+    except Exception:
+        pass
+    try:
+        del base_api_model
+    except Exception:
+        pass
+    gc.collect()
+    torch.cuda.empty_cache()
 
 
 # =====================================
