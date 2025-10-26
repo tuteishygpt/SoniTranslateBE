@@ -38,6 +38,8 @@ except ImportError:  # pragma: no cover
     torch = None  # type: ignore
 
 import gc  # noqa
+from tqdm import tqdm
+import librosa, os, re, torch, gc # noqa
 from .language_configuration import fix_code_language
 from .utils import (
     download_manager,
