@@ -48,6 +48,7 @@ LANGUAGES = {
     "Persian (fa)": "fa",  # no aux gTTS
     "Polish (pl)": "pl",
     "Portuguese (pt)": "pt",
+    "Belarusian (be)": "be",
     "Russian (ru)": "ru",
     "Spanish (es)": "es",
     "Turkish (tr)": "tr",
@@ -164,10 +165,10 @@ EXTRA_ALIGN = {
     "no": "NbAiLab/wav2vec2-xlsr-300m-norwegian",
     "zh-TW": "jonatasgrosman/wav2vec2-large-xlsr-53-chinese-zh-cn",
     "as": "",
-    "eu": "", # cahya/wav2vec2-large-xlsr-basque # verify
+    "eu": "",  # cahya/wav2vec2-large-xlsr-basque # verify
     "ha": "infinitejoy/wav2vec2-large-xls-r-300m-hausa",
     "ht": "",
-    "hy": "infinitejoy/wav2vec2-large-xls-r-300m-armenian", # no (.)
+    "hy": "infinitejoy/wav2vec2-large-xls-r-300m-armenian",  # no (.)
     "lo": "",
     "mg": "",
     "mn": "tugstugi/wav2vec2-large-xlsr-53-mongolian",
@@ -183,8 +184,8 @@ EXTRA_ALIGN = {
     "uz": "",  # Mekhriddin/wav2vec2-large-xls-r-300m-uzbek-colab
     "yo": "ogbi/wav2vec2-large-mms-1b-yoruba-test",
     "tl": "Khalsuu/filipino-wav2vec2-l-xls-r-300m-official",
+    "be": "",  # (Belarusian) placeholder - add model if/when available
 }
-
 
 def fix_code_language(translate_to, syntax="google"):
     if syntax == "google":
@@ -268,7 +269,7 @@ BARK_VOICES_LIST = {
     "ja_speaker_5-Female BARK": "v2/ja_speaker_5",
     "ja_speaker_6-Male BARK": "v2/ja_speaker_6",
     "ja_speaker_7-Female BARK": "v2/ja_speaker_7",
-    "ja_speaker_8-Female BARK": "v2/ja_speaker_8",
+    "ja_speaker_8-Male BARK": "v2/ja_speaker_8",
     "ja_speaker_9-Female BARK": "v2/ja_speaker_9",
     "ko_speaker_0-Female BARK": "v2/ko_speaker_0",
     "ko_speaker_1-Male BARK": "v2/ko_speaker_1",
@@ -551,4 +552,5 @@ LANGUAGE_CODE_IN_THREE_LETTERS = {
     "sk": "slk",
     "sq": "sqi",
     "sr": "srp",
+    "be": "bel",
 }
