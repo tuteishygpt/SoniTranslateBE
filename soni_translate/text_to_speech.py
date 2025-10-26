@@ -82,6 +82,25 @@ def pad_array(array, sr):
 
 
 # =====================================
+# Compatibility shims for removed TTS backends
+# =====================================
+
+
+def edge_tts_voices_list():
+    """Return an empty list to maintain compatibility with legacy imports."""
+
+    logger.debug("edge_tts_voices_list called but Edge TTS backend is disabled")
+    return []
+
+
+def piper_tts_voices_list():
+    """Return an empty list to maintain compatibility with legacy imports."""
+
+    logger.debug("piper_tts_voices_list called but Piper backend is disabled")
+    return []
+
+
+# =====================================
 # Coqui XTTS
 # =====================================
 
