@@ -1,4 +1,43 @@
 import glob # noqa
+import os
+import re
+
+try:
+    from tqdm import tqdm
+except ImportError:  # pragma: no cover - fallback for minimal environments
+    class _TqdmFallback:
+        """Minimal stand-in for ``tqdm`` when the dependency is unavailable."""
+
+        def __init__(self, iterable=None, total=None, desc=None, **kwargs):
+            self._iterable = iterable
+            self.total = total
+            self.desc = desc
+
+        def __iter__(self):
+            if self._iterable is None:
+                return iter(range(self.total or 0))
+            return iter(self._iterable)
+
+        def update(self, n=1):
+            return None
+
+        def close(self):
+            return None
+
+    def tqdm(iterable=None, *args, **kwargs):  # type: ignore
+        return _TqdmFallback(iterable=iterable, **kwargs)
+
+try:
+    import librosa  # type: ignore
+except ImportError:  # pragma: no cover
+    librosa = None  # type: ignore
+
+try:
+    import torch  # type: ignore
+except ImportError:  # pragma: no cover
+    torch = None  # type: ignore
+
+import gc  # noqa
 from tqdm import tqdm
 import librosa, os, re, torch, gc # noqa
 from .language_configuration import fix_code_language
@@ -79,6 +118,18 @@ def pad_array(array, sr):
     except Exception as error:
         logger.error(str(error))
         return array
+
+
+def get_audio_duration(filename):
+    if librosa is not None:
+        return librosa.get_duration(filename=filename)
+
+    info = sf.info(filename)
+    if not info.samplerate:
+        raise TTS_OperationError(
+            f"Unable to determine duration for '{filename}' without a samplerate"
+        )
+    return info.frames / info.samplerate
 
 
 # =====================================
@@ -615,7 +666,7 @@ def accelerate_segments(
 
         # duration
         duration_true = end - start
-        duration_tts = librosa.get_duration(filename=filename)
+        duration_tts = get_audio_duration(filename)
 
         # Accelerate percentage
         acc_percentage = duration_tts / duration_true
@@ -670,7 +721,7 @@ def accelerate_segments(
             )
 
         if logger.isEnabledFor(logging.DEBUG):
-            duration_create = librosa.get_duration(
+            duration_create = get_audio_duration(
                 filename=f"{folder_output}/{filename}"
             )
             logger.debug(
