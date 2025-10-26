@@ -184,7 +184,7 @@ EXTRA_ALIGN = {
     "uz": "",  # Mekhriddin/wav2vec2-large-xls-r-300m-uzbek-colab
     "yo": "ogbi/wav2vec2-large-mms-1b-yoruba-test",
     "tl": "Khalsuu/filipino-wav2vec2-l-xls-r-300m-official",
-    "be": "",  # (Belarusian) placeholder - add model if/when available
+    "be": "",  # Belarusian
 }
 
 def fix_code_language(translate_to, syntax="google"):
