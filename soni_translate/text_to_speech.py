@@ -391,6 +391,55 @@ def segments_vits_tts(filtered_vits_segments, TRANSLATE_AUDIO_TO):
 # =====================================
 
 
+CUSTOM_COQUI_MODELS = {
+    "be": {
+        "repo": "archivartaunik/BE_XTTS_V2_10ep250k",
+        "files": {
+            "model_path": "model.pth",
+            "config_path": "config.json",
+            "vocab_path": "vocab.json",
+        },
+    }
+}
+
+
+def download_custom_coqui_model(language_code):
+    model_meta = CUSTOM_COQUI_MODELS.get(language_code)
+    if not model_meta:
+        return {}
+
+    repo = model_meta["repo"]
+    sanitized_repo = repo.replace("/", "_")
+    model_dir = os.path.join("COQUI_MODELS", sanitized_repo)
+    create_directories(model_dir)
+
+    downloaded_paths = {}
+    for key, filename in model_meta["files"].items():
+        url = f"https://huggingface.co/{repo}/resolve/main/{filename}"
+        try:
+            downloaded_file = download_manager(
+                url=url, path=model_dir, progress=False
+            )
+        except Exception as error:
+            logger.error(
+                "Unable to download '%s' for custom Coqui model '%s': %s",
+                filename,
+                repo,
+                error,
+            )
+            return {}
+
+        if not downloaded_file or not Path(downloaded_file).is_file():
+            logger.error(
+                "Custom Coqui model file missing after download: %s", filename
+            )
+            return {}
+
+        downloaded_paths[key] = downloaded_file
+
+    return downloaded_paths
+
+
 def coqui_xtts_voices_list():
     main_folder = "_XTTS_"
     pattern_coqui = re.compile(r".+\.(wav|mp3|ogg|m4a)$")
@@ -617,6 +666,7 @@ def segments_coqui_tts(
         "hu",
         "ko",
         "ja",
+        "be",
     ]
     if TRANSLATE_AUDIO_TO not in supported_lang_coqui:
         raise TTS_OperationError(
@@ -639,7 +689,37 @@ def segments_coqui_tts(
 
     # Init TTS
     device = os.environ.get("SONITR_DEVICE")
-    model = TTS(model_id_coqui).to(device)
+    custom_model_paths = download_custom_coqui_model(TRANSLATE_AUDIO_TO)
+
+    if custom_model_paths:
+        missing_required = [
+            key
+            for key in ("model_path", "config_path", "vocab_path")
+            if key not in custom_model_paths
+        ]
+        if missing_required:
+            logger.error(
+                "Custom Coqui model for '%s' is missing required files: %s",
+                TRANSLATE_AUDIO_TO,
+                ", ".join(missing_required),
+            )
+            custom_model_paths = {}
+
+    if custom_model_paths:
+        logger.info(
+            "Loading custom Coqui XTTS model for language '%s'", TRANSLATE_AUDIO_TO
+        )
+        model_kwargs = {
+            "model_path": custom_model_paths.get("model_path"),
+            "config_path": custom_model_paths.get("config_path"),
+            "progress_bar": False,
+        }
+        model = TTS(**model_kwargs).to(device)
+    else:
+        logger.info(
+            "Loading default Coqui XTTS model '%s'", model_id_coqui
+        )
+        model = TTS(model_id_coqui).to(device)
     sampling_rate = 24000
 
     # filtered_segments = filtered_coqui_segments['segments']
